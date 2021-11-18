@@ -22,7 +22,8 @@ async function run() {
         const database = client.db('wowshop');
         const usersCollection = database.collection('users');
         const productsCollection = database.collection('products');
-        /*  const placeOrderCollection = database.collection('placeorder'); */
+        const placeOrderCollection = database.collection('placeorder');
+        const reviewsCollection = database.collection('reviews');
 
         //Register User data insert
         app.post('/users', async (req, res) => {
@@ -70,15 +71,62 @@ async function run() {
             res.send(products);
         });
 
+        //GET Single Products
+        app.get('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await productsCollection.findOne(query);
+            res.json(result);
+
+        });
+
         //Add Products POST API
         app.post('/products', async (req, res) => {
             const product = req.body;
-            console.log('hit the post api', product);
+            console.log('hit the products post api', product);
             const result = await productsCollection.insertOne(product);
             console.log(result);
             res.json(result);
         })
 
+        //PlaceOrder POST API
+        app.post('/placeorder', async (req, res) => {
+            const order = req.body;
+            console.log('hit the PlaceOrder post api', order);
+            const result = await placeOrderCollection.insertOne(order);
+            console.log(result);
+            res.json(result);
+        })
+
+        //GET PlaceOrder data
+        app.get('/placeorder', async (req, res) => {
+            const cursor = placeOrderCollection.find({});
+            const placeorders = await cursor.toArray();
+            res.send(placeorders);
+        });
+
+        //DELETE API
+        app.delete('/placeorder/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await placeOrderCollection.deleteOne(query);
+            res.json(result);
+        })
+
+        //review POST API
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            const result = await reviewsCollection.insertOne(review);
+            console.log(result);
+            res.json(result);
+        })
+
+        //review GET API
+        app.get('/reviews', async (req, res) => {
+            const cursor = reviewsCollection.find({});
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+        });
 
     } finally {
         // await client.close();
